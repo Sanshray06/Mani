@@ -33,3 +33,52 @@ export const asset= {
     menu,
     back
 }
+
+
+
+export const products = [
+    {
+      id: 1,
+      name: "Classic Necklace Set",
+      price: 1200,
+      currency: '₹',
+      description: "Elegant necklace set with matching earrings.",
+      mainImage: asset.mainProduct1,
+      images: [
+        mainProduct1_1,
+        mainProduct1_2,
+        mainProduct1_3,
+        mainProduct1_4,
+      ],
+      category: "Jewelry",
+      inStock: true,
+    },
+    {
+      id: 2,
+      name: "Gold Plated Bangles",
+      price: 800,
+      currency: '₹',
+      description: "Stylish gold-plated bangles for every occasion.",
+      mainImage: asset.mainPic,
+      images: [
+        mainProduct1_2,
+        mainProduct1_3,
+      ],
+      category: "Jewelry",
+      inStock: true,
+    },
+    {
+      id: 3,
+      name: "Premium Earrings",
+      price: 500,
+      currency: '₹',
+      description: "Beautiful earrings for a perfect ethnic look.",
+      mainImage: asset.mainProduct1_4,
+      images: [
+        mainProduct1_1,
+        mainProduct1_3,
+      ],
+      category: "Jewelry",
+      inStock: false,
+    },
+  ];
