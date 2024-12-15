@@ -8,13 +8,13 @@ const Navbar = () => {
     <nav className="w-full bg-white shadow-md">
       <div className="flex items-center justify-between px-4 md:px-8 py-4">
         {/* Logo */}
-        <NavLink to="/">
+        <Link to="/">
           <img
             src={asset.Logo}
             className="w-24 md:w-28 h-auto object-contain rounded-md transition-all duration-300"
             alt="Mani Jewellers Logo"
           />
-        </NavLink>
+        </Link>
 
         {/* Navigation Links */}
         <div className="hidden sm:flex items-center gap-4 md:gap-8">
