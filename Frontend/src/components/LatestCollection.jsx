@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/shopContext'
 import Title from './Title';
 import ProductItem from './ProductItem';
@@ -9,7 +9,6 @@ const LatestCollection = () => {
     useEffect(()=>{
       setLatestProducts(products);
     })
-    console.log(products);
   return (
     <div>
       <div className="text-center py-8 text-xl md:text-3xl">
@@ -23,7 +22,7 @@ const LatestCollection = () => {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6">
         {
           latestProducts.map((item,index)=>(
-            <ProductItem key={index} id={item.id} image1={item.mainImage[0]} image2={item.mainImage[1]} name ={item.name} price = {item.price} />
+            <ProductItem key={index} id={item.id} image1={item.mainImage[0]} image2={item.mainImage[1]} name ={item.name} price = {item.price} originalPrice={item.originalPrice} />
           ))
         }
       </div>

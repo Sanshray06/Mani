@@ -1,4 +1,3 @@
-import React from 'react';
 import { asset } from '../assets/assets';
 
 const Hero = () => {
