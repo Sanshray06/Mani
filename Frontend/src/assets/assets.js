@@ -20,6 +20,7 @@ import Product8 from './Product8.jpg'
 import Product9 from './Product9.jpg'
 import Product10 from './Product10.jpg'
 import loupe from './loupe.png'
+import down from './down.png'
 import service from './service.png'
 import support from './support.png'
 import trade from './trade.png'
@@ -57,7 +58,8 @@ export const asset= {
     Product10, 
     trade,
     service,
-    support
+    support,
+    down
 }
 
 
@@ -77,7 +79,8 @@ export const products = [
         mainProduct1_3,
         mainProduct1_4,
       ],
-      category: "Jewelry",
+      category: "Women",
+      type: "Necklace",
       inStock: true,
       bestseller: true,
     },
@@ -93,7 +96,8 @@ export const products = [
         mainProduct1_2,
         mainProduct1_3,
       ],
-      category: "Jewelry",
+      category: "Women",
+      type: "Bracelets",
       inStock: true,
       bestseller: false,
     },
@@ -109,26 +113,29 @@ export const products = [
         mainProduct1_1,
         mainProduct1_3,
       ],
-      category: "Jewelry",
+      category: "Women",
+      type: "Earrings",
       inStock: false,
       bestseller: true,
     },
     {
       id: 4,
-      name: "Premium Earrings",
+      name: "Elegant Ring",
       price: 700,
       originalPrice:1500,
       currency: '₹',
-      description: "Beautiful earrings for a perfect ethnic look.",
+      description: "Stylish ring for a perfect look.",
       mainImage: [Product4, mainProduct1_4],
       images: [
         mainProduct1_1,
         mainProduct1_3,
       ],
-      category: "Jewelry",
+      category: "Women",
+      type: "Rings",
       inStock: false,
       bestseller: false,
     },
+
     {
       id: 10,
       name: "Premium Earrings",
@@ -141,7 +148,8 @@ export const products = [
         mainProduct1_1,
         mainProduct1_3,
       ],
-      category: "Jewelry",
+      category: "Women",
+      type:"Rings",
       inStock: false,
       bestseller: true,
     },
@@ -157,7 +165,8 @@ export const products = [
         mainProduct1_1,
         mainProduct1_3,
       ],
-      category: "Jewelry",
+      category: "Women",
+      type: "anklets",
       inStock: false,
       bestseller: false,
     },
@@ -173,7 +182,8 @@ export const products = [
         mainProduct1_1,
         mainProduct1_3,
       ],
-      category: "Jewelry",
+      category: "Women",
+      type: "Anklets",
       inStock: false,
       bestseller: true,
     },
@@ -189,7 +199,8 @@ export const products = [
         mainProduct1_1,
         mainProduct1_3,
       ],
-      category: "Jewelry",
+      category: "Women",
+      type: "Necklace",
       inStock: false,
       bestseller: false,
     },
@@ -205,7 +216,8 @@ export const products = [
         mainProduct1_1,
         mainProduct1_3,
       ],
-      category: "Jewelry",
+      category: "Women",
+      type: "Necklace",
       inStock: false,
       bestseller: true,
     },
@@ -221,7 +233,8 @@ export const products = [
         mainProduct1_1,
         mainProduct1_3,
       ],
-      category: "Jewelry",
+      category: "Women",
+      type: "Bracelets",
       inStock: false,
       bestseller: false,
     },

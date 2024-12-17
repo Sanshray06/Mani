@@ -63,7 +63,7 @@ const Navbar = () => {
             </li>
             <li>
               <NavLink
-                to="/category"
+                to="/collection"
                 className={({ isActive }) =>
                   `hover:text-gray-900 ${isActive ? 'font-medium' : ''}`
                 }
