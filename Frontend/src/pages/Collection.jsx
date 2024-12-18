@@ -6,7 +6,7 @@ import Title from '../components/Title';
 import ProductItem from '../components/ProductItem';
 
 const Collection = () => {
-  const { products } = useContext(ShopContext);
+  const { products,search,showSearch } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -15,32 +15,43 @@ const Collection = () => {
 
   useEffect(() => {
     handleFilterAndSort();
-  }, [products, selectedCategories, selectedTypes, sortOrder]);
+  }, [products, search, showSearch, selectedCategories, selectedTypes, sortOrder]);
+  
 
   const handleFilterAndSort = () => {
-    let filtered = [...products]; // Ensure a new reference
-
+    let filtered = [...products];
+  
+    if (showSearch && search) {
+      filtered = filtered.filter(item =>
+        item.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+  
     if (selectedCategories.length > 0) {
-        filtered = filtered.filter(product =>
-            selectedCategories.includes(product.category)
-        );
+      filtered = filtered.filter(product =>
+        selectedCategories.some(category =>
+          product.category?.toLowerCase() === category.toLowerCase()
+        )
+      );
     }
-
+  
     if (selectedTypes.length > 0) {
-        filtered = filtered.filter(product =>
-            selectedTypes.includes(product.type)
-        );
+      filtered = filtered.filter(product =>
+        selectedTypes.some(type =>
+          product.type?.toLowerCase() === type.toLowerCase()
+        )
+      );
     }
-
+  
     if (sortOrder === "low-high") {
-        filtered.sort((a, b) => a.price - b.price);
+      filtered.sort((a, b) => a.price - b.price);
     } else if (sortOrder === "high-low") {
-        filtered.sort((a, b) => b.price - a.price);
+      filtered.sort((a, b) => b.price - a.price);
     }
-
-    setFilterProducts(filtered); // Update immediately
-};
-
+  
+    setFilterProducts(filtered);
+  };
+  
 
   const handleCheckboxChange = (value, setState, state) => {
     setState(
@@ -51,7 +62,6 @@ const Collection = () => {
   return (
     <div className="container mx-auto px-4 py-10">
       <div className="flex flex-col sm:flex-row gap-10 border-t pt-10">
-        {/* Filter Section */}
         <div className="w-full sm:w-1/4">
           <p 
             className="my-2 text-xl flex items-center cursor-pointer gap-2" 
@@ -76,6 +86,7 @@ const Collection = () => {
                         type="checkbox" 
                         className="w-3" 
                         value={category} 
+                        checked={selectedCategories.includes(category)}
                         onChange={() => handleCheckboxChange(category, setSelectedCategories, selectedCategories)}
                       />{category}
                     </label>
@@ -92,12 +103,24 @@ const Collection = () => {
                         type="checkbox" 
                         className="w-3" 
                         value={type} 
+                        checked={selectedTypes.includes(type)}
                         onChange={() => handleCheckboxChange(type, setSelectedTypes, selectedTypes)}
                       />{type}
                     </label>
                   ))}
                 </div>
               </div>
+
+              <button 
+                className="mt-4 px-4 py-2 bg-gray-500 text-white rounded" 
+                onClick={() => {
+                  setSelectedCategories([]);
+                  setSelectedTypes([]);
+                  setSortOrder("relevant");
+                }}
+              >
+                Clear All Filters
+              </button>
             </div>
           )}
         </div>
@@ -132,7 +155,7 @@ const Collection = () => {
         </div>
       </div>
 
-      <Footer />
+      
     </div>
   );
 };

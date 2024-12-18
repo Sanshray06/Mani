@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { asset } from '../assets/assets';
+import { ShopContext } from '../context/shopContext';
 
 const Navbar = () => {
   const [visible ,setVisible] = useState(false);
+  const {setShowSearch} = useContext(ShopContext);
   return (
     <nav className="w-full bg-white shadow-md">
       <div className="flex items-center justify-between px-4 md:px-8 py-4">
@@ -80,7 +82,7 @@ const Navbar = () => {
 
         {/* Right Side Elements */}
         <div className="flex items-center gap-4 md:gap-8 relative">
-          <img
+          <img onClick={()=>setShowSearch(true)}
             src={asset.loupe}
             className="w-5 h-5 object-contain rounded-md cursor-pointer"
             alt="Search Icon"
