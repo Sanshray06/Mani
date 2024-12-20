@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Title from '../components/Title';
 import { asset } from '../assets/assets';
+import { ShopContext } from '../context/shopContext';
 
 const PlaceOrder = () => {
   const location = useLocation();
   const { cartData, total } = location.state || { cartData: [], total: 0 };
   const [selectedPayment, setSelectedPayment] = useState('stripe');
+  const {navigate}  = useContext(ShopContext);
 
   if (!cartData || cartData.length === 0) {
     return (
@@ -194,7 +196,7 @@ const PlaceOrder = () => {
           </div>
         </div>
 
-        <button className="bg-black text-white py-3 px-4 rounded w-full hover:bg-gray-800 mt-6">
+        <button onClick={()=>{navigate('/orders')}} className="bg-black text-white py-3 px-4 rounded w-full hover:bg-gray-800 mt-6">
           Place Order
         </button>
       </div>
