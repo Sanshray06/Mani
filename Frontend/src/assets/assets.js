@@ -10,7 +10,10 @@ import menu from './menu.png'
 import star from './star.png'
 import user from './user.png'
 import back from './back.png'
+import th123 from './th123.jpg'
 import close from './close.png'
+import OIP from './OIP.jpg'
+import download from './download.jpg'
 import Product1 from './Product1.jpg'
 import Product2 from './Product2.jpg'
 import Product3 from './Product3.jpg'
@@ -71,7 +74,10 @@ export const asset= {
     star,
     childrenNecklace1_1,
     childrenNecklace1_2,
-    childrenNecklace1
+    childrenNecklace1,
+    th123,
+    download,
+    OIP
 }
 
 

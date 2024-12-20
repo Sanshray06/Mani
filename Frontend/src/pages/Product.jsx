@@ -6,15 +6,19 @@ import { RelatedProducts } from "../components/RelatedProducts";
 
 const Product = () => {
   const { productId } = useParams();
-  const { products } = useContext(ShopContext);
+  const { products, currency , addToCart } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState("");
-  const [selectedSize, setSelectedSize] = useState("M");
+  const [selectedSize, setSelectedSize] = useState("");
+
   const [reviews, setReviews] = useState([
     { user: "John Doe", comment: "Great product!", rating: 5 },
     { user: "Jane Smith", comment: "Looks amazing, worth it!", rating: 4 },
   ]);
   const [newReview, setNewReview] = useState({ user: "", comment: "", rating: 5 });
+  const [cartBounce, setCartBounce] = useState(false);
+
+  
 
   // Fetch product data
   const fetchProductData = () => {
@@ -107,7 +111,7 @@ const Product = () => {
 
             {/* Add to Cart & Buy Now */}
             <div className="flex gap-4 mt-8">
-              <button className="px-8 py-3 bg-black text-sm active:bg-gray-700 text-white rounded-lg">Add to Cart</button>
+              <button onClick={()=>addToCart(productData.id,selectedSize)} className="px-8 py-3 bg-black text-sm active:bg-gray-700 text-white rounded-lg">Add to Cart</button>
               
             </div>
 
