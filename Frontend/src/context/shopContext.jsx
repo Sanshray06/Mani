@@ -43,7 +43,14 @@ const ShopContextProvider = (props) => {
       return newCart;
     });
   };
+  const buy=async (itemId, size) =>{
+    if (!size) {
+      toast.error('Select Product Size');
+      return false;
+    }
+    return true;
 
+  }
   const removeFromCart = (itemId, size) => {
     setCartItems(prevCart => {
       const newCart = structuredClone(prevCart);
@@ -127,7 +134,8 @@ const ShopContextProvider = (props) => {
     getCartCount,
     getCartTotal,
     clearCart,
-    navigate
+    navigate,
+    buy
   };
 
   return (

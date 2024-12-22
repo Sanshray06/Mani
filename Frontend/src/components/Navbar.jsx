@@ -91,7 +91,9 @@ const Navbar = () => {
           />
           
           <div className="relative group">
-            <img className="w-5 cursor-pointer" src={asset.user} alt="Profile Pic" />
+            <Link to='/Login'>
+              <img className="w-5 cursor-pointer" src={asset.user} alt="Profile Pic" />
+            </Link>
             <div className="absolute right-0 hidden group-hover:block pt-4">
               <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded shadow-md">
                 <p className="cursor-pointer hover:text-black">My Profile</p>

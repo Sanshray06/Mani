@@ -6,7 +6,7 @@ import { RelatedProducts } from "../components/RelatedProducts";
 
 const Product = () => {
   const { productId } = useParams();
-  const { products, currency , addToCart } = useContext(ShopContext);
+  const { products, currency , addToCart,navigate,buy } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
@@ -40,6 +40,25 @@ const Product = () => {
       setReviews([...reviews, newReview]);
       setNewReview({ user: "", comment: "", rating: 5 });
     }
+  };
+  const handleBuyNow = async () => {
+    
+    const res = await buy(productData.id,selectedSize);
+    if(res){
+      navigate("/placeorder", {
+        state: {
+          cartData: [
+            {
+              product: productData,
+              size: selectedSize,
+              quantity: 1,
+            },
+          ],
+          total: productData.price,
+        },
+      });
+    }
+    
   };
 
   return productData ? (
@@ -112,7 +131,12 @@ const Product = () => {
             {/* Add to Cart & Buy Now */}
             <div className="flex gap-4 mt-8">
               <button onClick={()=>addToCart(productData.id,selectedSize)} className="px-8 py-3 bg-black text-sm active:bg-gray-700 text-white rounded-lg">Add to Cart</button>
-              
+                <button
+                  onClick={handleBuyNow}
+                  className="px-8 py-3 bg-blue-500 text-sm active:bg-blue-700 text-white rounded-lg"
+                >
+                  Buy Now
+              </button>
             </div>
 
             <hr className="mt-8 sm:w-4/5" />

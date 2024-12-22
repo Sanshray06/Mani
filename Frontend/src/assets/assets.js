@@ -10,9 +10,11 @@ import menu from './menu.png'
 import star from './star.png'
 import user from './user.png'
 import back from './back.png'
+import image from './image.png'
 import th123 from './th123.jpg'
 import close from './close.png'
 import OIP from './OIP.jpg'
+import th1 from './th1.jpg'
 import download from './download.jpg'
 import Product1 from './Product1.jpg'
 import Product2 from './Product2.jpg'
@@ -77,7 +79,9 @@ export const asset= {
     childrenNecklace1,
     th123,
     download,
-    OIP
+    OIP,
+    image,
+    th1
 }
 
 
