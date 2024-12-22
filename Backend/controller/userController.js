@@ -2,6 +2,9 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
 import userModel from "../models/userModel.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 
 const createToken = (id) =>{
@@ -66,8 +69,32 @@ const registerUser = async (req, res) => {
     }
 };
 
+
+
 const adminLogin = async (req, res) => {
-    res.json({ msg: "Admin Login API Working" });
+  try {
+    const { email, password } = req.body;
+
+    // Verify email and password against environment variables
+    if (email !== process.env.ADMIN_EMAIL || password !== process.env.ADMIN_PASSWORD) {
+      return res.json({
+        success: false,
+        message: "Invalid admin credentials.",
+      });
+    }
+
+    // Generate a token for the admin
+    const token = jwt.sign(email+password,process.env.JWT_SECRET);
+
+    res.json({
+      success: true,
+      token,
+      message: "Admin logged in successfully.",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
 };
 
 export { loginUser, registerUser, adminLogin };
