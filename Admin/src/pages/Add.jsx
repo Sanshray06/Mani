@@ -1,37 +1,169 @@
 import React, { useState } from "react";
+import { ChevronDown } from 'lucide-react';
+import { backendUrl } from "../App";
+import axios from "axios";
 
-const Add = () => {
+const Add = ({token}) => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
     originalPrice: "",
-    mainImages: [],
-    additionalImages: [],
     category: "",
     type: "",
-    sizes: [],
+    sizes: [], // Initialize as empty array
     bestSeller: false,
-    date: "",
+  });
+  
+  const [imageFiles, setImageFiles] = useState({
+    image1: null,
+    image2: null,
+    image3: null,
+    image4: null,
   });
 
-  const handleInputChange = (e) => {
+  const [imagePreview, setImagePreview] = useState({
+    image1: null,
+    image2: null,
+    image3: null,
+    image4: null,
+  });
+  
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  
+  const categories = ['Women', 'Men', 'Children'];
+  const types = ['Necklace', 'Bracelets', 'Bangles', 'Rings', 'Anklets'];
+  const sizes = ['S', 'M', 'L', 'XL','None'];
+
+  const handleSelectChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === "sizes") {
+      // Handle size selection
+      const newSizes = formData.sizes.includes(value)
+        ? formData.sizes.filter(size => size !== value)
+        : [...formData.sizes, value];
+      
+      setFormData(prev => ({
+        ...prev,
+        sizes: newSizes
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
-  const handleImageUpload = (field, index, file) => {
-    const newImages = [...formData[field]];
-    newImages[index] = URL.createObjectURL(file);
-    setFormData({ ...formData, [field]: newImages });
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
   };
 
-  const handleSubmit = (e) => {
+  const handleImageUpload = (fieldName, file) => {
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setError('Please upload only image files');
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size should be less than 5MB');
+        return;
+      }
+
+      setImageFiles(prev => ({
+        ...prev,
+        [fieldName]: file
+      }));
+
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(prev => ({
+        ...prev,
+        [fieldName]: previewUrl
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    alert("Product added successfully!");
-  };
+    setLoading(true);
+    setError("");
 
+    if (!imageFiles.image1 || !imageFiles.image2) {
+      setError("First two images are required");
+      setLoading(false);
+      return;
+    }
+
+    const submitFormData = new FormData();
+  
+    // Append all form fields except sizes
+    Object.keys(formData).forEach(key => {
+      if (key === 'sizes') {
+        // Convert sizes array to string
+        submitFormData.append('sizes', JSON.stringify(formData.sizes));
+      } else {
+        submitFormData.append(key, formData[key]);
+      }
+    });
+  
+    // Append image files
+    Object.keys(imageFiles).forEach(key => {
+      if (imageFiles[key]) {
+        submitFormData.append(key, imageFiles[key]);
+      }
+    });
+  
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/product/add`,
+        submitFormData,
+        {
+          headers: {
+            token,
+            'Content-Type': 'multipart/form-data',
+          }
+        }
+      );
+
+      if (response.data) {
+        alert("Product added successfully!");
+        // Reset form
+        setFormData({
+          name: "",
+          description: "",
+          price: "",
+          originalPrice: "",
+          category: "",
+          type: "",
+          sizes: [],
+          bestSeller: false,
+        });
+        setImageFiles({
+          image1: null,
+          image2: null,
+          image3: null,
+          image4: null,
+        });
+        setImagePreview({
+          image1: null,
+          image2: null,
+          image3: null,
+          image4: null,
+        });
+      }
+    } catch (error) {
+      console.error('Error details:', error);
+      setError(error.response?.data?.message || "Failed to add product");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50">
       <div className="flex-1 p-4 md:p-6 lg:p-8">
@@ -46,31 +178,33 @@ const Add = () => {
                 Main Images (Required)
               </p>
               <div className="grid grid-cols-2 gap-4 md:gap-6">
-                {Array(2).fill().map((_, index) => (
+                {['image1', 'image2'].map((fieldName) => (
                   <label
-                    key={`main-${index}`}
-                    htmlFor={`mainImage${index}`}
+                    key={fieldName}
+                    htmlFor={fieldName}
                     className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg h-40 md:h-48 lg:h-56 cursor-pointer hover:border-blue-500 transition"
                   >
-                    {formData.mainImages[index] ? (
+                    {imagePreview[fieldName] ? (
                       <img
-                        src={formData.mainImages[index]}
-                        alt={`Main ${index + 1}`}
+                        src={imagePreview[fieldName]}
+                        alt={fieldName}
                         className="w-full h-full object-cover rounded-lg"
                       />
                     ) : (
                       <div className="text-center p-4">
-                        <span className="text-base md:text-lg text-gray-500">Main Image {index + 1}</span>
+                        <span className="text-base md:text-lg text-gray-500">
+                          {fieldName === 'image1' ? 'Main Image 1' : 'Main Image 2'}
+                        </span>
                         <p className="text-sm md:text-base text-gray-400 mt-2">Click to upload</p>
                       </div>
                     )}
                     <input
                       type="file"
-                      id={`mainImage${index}`}
+                      id={fieldName}
                       className="hidden"
-                      onChange={(e) => handleImageUpload("mainImages", index, e.target.files[0])}
+                      onChange={(e) => handleImageUpload(fieldName, e.target.files[0])}
                       accept="image/*"
-                      required
+                      required={fieldName === 'image1' || fieldName === 'image2'}
                     />
                   </label>
                 ))}
@@ -83,16 +217,16 @@ const Add = () => {
                 Additional Images (Optional)
               </p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                {Array(4).fill().map((_, index) => (
+                {['image3', 'image4'].map((fieldName) => (
                   <label
-                    key={`additional-${index}`}
-                    htmlFor={`additionalImage${index}`}
+                    key={fieldName}
+                    htmlFor={fieldName}
                     className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg h-32 md:h-40 cursor-pointer hover:border-blue-500 transition"
                   >
-                    {formData.additionalImages[index] ? (
+                    {imagePreview[fieldName] ? (
                       <img
-                        src={formData.additionalImages[index]}
-                        alt={`Additional ${index + 1}`}
+                        src={imagePreview[fieldName]}
+                        alt={fieldName}
                         className="w-full h-full object-cover rounded-lg"
                       />
                     ) : (
@@ -102,9 +236,9 @@ const Add = () => {
                     )}
                     <input
                       type="file"
-                      id={`additionalImage${index}`}
+                      id={fieldName}
                       className="hidden"
-                      onChange={(e) => handleImageUpload("additionalImages", index, e.target.files[0])}
+                      onChange={(e) => handleImageUpload(fieldName, e.target.files[0])}
                       accept="image/*"
                     />
                   </label>
@@ -112,6 +246,7 @@ const Add = () => {
               </div>
             </div>
 
+            {/* Rest of the form fields remain the same */}
             {/* Form Fields */}
             <div className="space-y-6 md:space-y-8">
               {/* Name */}
@@ -152,7 +287,7 @@ const Add = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="price" className="block text-base md:text-lg font-semibold text-gray-700 mb-2">
-                    Price ($)
+                    Price (₹)
                   </label>
                   <input
                     type="number"
@@ -168,7 +303,7 @@ const Add = () => {
 
                 <div>
                   <label htmlFor="originalPrice" className="block text-base md:text-lg font-semibold text-gray-700 mb-2">
-                    Original Price ($)
+                    Original Price (₹)
                   </label>
                   <input
                     type="number"
@@ -185,55 +320,81 @@ const Add = () => {
 
               {/* Category and Type */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="category" className="block text-base md:text-lg font-semibold text-gray-700 mb-2">
+                <div className="relative">
+                  <label className="block text-base md:text-lg font-semibold text-gray-700 mb-2">
                     Category
                   </label>
-                  <input
-                    type="text"
-                    id="category"
-                    name="category"
-                    className="w-full px-4 py-3 text-base md:text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    placeholder="Enter category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <div className="relative">
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleSelectChange}
+                      className="w-full px-4 py-3 text-base md:text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none bg-white"
+                      required
+                    >
+                      <option value="">Select Category</option>
+                      {categories.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={20} />
+                  </div>
                 </div>
-
-                <div>
-                  <label htmlFor="type" className="block text-base md:text-lg font-semibold text-gray-700 mb-2">
+                <div className="relative">
+                  <label className="block text-base md:text-lg font-semibold text-gray-700 mb-2">
                     Type
                   </label>
-                  <input
-                    type="text"
-                    id="type"
-                    name="type"
-                    className="w-full px-4 py-3 text-base md:text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    placeholder="Enter type"
-                    value={formData.type}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <div className="relative">
+                    <select
+                      name="type"
+                      value={formData.type}
+                      onChange={handleSelectChange}
+                      className="w-full px-4 py-3 text-base md:text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none bg-white"
+                      required
+                    >
+                      <option value="">Select Type</option>
+                      {types.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={20} />
+                  </div>
                 </div>
               </div>
 
               {/* Sizes */}
-              <div>
-                <label htmlFor="sizes" className="block text-base md:text-lg font-semibold text-gray-700 mb-2">
-                  Sizes (comma-separated)
+              <div className="mt-6">
+                <label className="block text-base md:text-lg font-semibold text-gray-700 mb-2">
+                  Sizes
                 </label>
-                <input
-                  type="text"
-                  id="sizes"
-                  name="sizes"
-                  className="w-full px-4 py-3 text-base md:text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  placeholder="Enter sizes (e.g., S, M, L)"
-                  value={formData.sizes}
-                  onChange={(e) => {
-                    setFormData({ ...formData, sizes: e.target.value.split(",").map(size => size.trim()) });
-                  }}
-                />
+                <div className="flex flex-wrap gap-3">
+                  {sizes.map((size) => (
+                    <label
+                      key={size}
+                      className={`cursor-pointer px-4 py-2 rounded-lg border-2 ${
+                        formData.sizes.includes(size)
+                          ? 'bg-blue-500 text-white border-blue-500'
+                          : 'bg-white text-gray-700 border-gray-300'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        name="sizes"
+                        value={size}
+                        checked={formData.sizes.includes(size)}
+                        onChange={(e) => handleSelectChange({
+                          target: { name: 'sizes', value: size }
+                        })}
+                        className="hidden"
+                      />
+                      {size}
+                    </label>
+                  ))}
+                </div>
               </div>
 
               {/* Best Seller */}
@@ -248,23 +409,6 @@ const Add = () => {
                   className="w-5 h-5 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500"
                   checked={formData.bestSeller}
                   onChange={(e) => setFormData({ ...formData, bestSeller: e.target.checked })}
-                />
-              </div>
-
-              {/* Date */}
-              <div>
-                <label htmlFor="date" className="block text-base md:text-lg font-semibold text-gray-700 mb-2">
-                  Date (Epoch)
-                </label>
-                <input
-                  type="number"
-                  id="date"
-                  name="date"
-                  className="w-full px-4 py-3 text-base md:text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  placeholder="Enter date in epoch format"
-                  value={formData.date}
-                  onChange={handleInputChange}
-                  required
                 />
               </div>
             </div>
