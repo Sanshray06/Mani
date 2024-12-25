@@ -15,6 +15,10 @@ import SearchBar from './components/SearchBar'
 import Footer from './components/Footer'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Necklace from './pages/Necklace'
+import Earring from './pages/Earring'
+import Ankelet from './pages/Ankelet'
+import Bangles from './pages/Bangles'
 function App() {
  
 
@@ -35,6 +39,10 @@ function App() {
           <Route path='/orders'   element = {<Order/>} />
           <Route path='/Placeorder'   element = {<Placeorder/>} />
           <Route path='/Product/:productId'   element = {<Product/>} />
+          <Route path='/necklaces'   element = {<Necklace/>} />
+          <Route path='/earrings'   element = {<Earring/>} />
+          <Route path='/anklets'   element = {<Ankelet/>} />
+          <Route path='/bangles'   element = {<Bangles/>} />
         </Routes>
       </div>
       <Footer />

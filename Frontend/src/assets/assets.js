@@ -26,6 +26,10 @@ import Product7 from './Product7.jpg'
 import Product8 from './Product8.jpg'
 import Product9 from './Product9.jpg'
 import Product10 from './Product10.jpg'
+import anklet from './anklet.jpg'
+import braclet from './braclet.jpg'
+import earring from './earring.jpg'
+import necklace from './necklace.jpg'
 import childrenAnkle from './childrenAnkle.jpg'
 import childrenAnkle1 from './childrenAnkle1.jpg'
 import childrenNecklace1 from './childrenNecklace1.jpg'
@@ -81,7 +85,11 @@ export const asset= {
     download,
     OIP,
     image,
-    th1
+    th1,
+    braclet,
+    anklet,
+    earring,
+    necklace
 }
 
 

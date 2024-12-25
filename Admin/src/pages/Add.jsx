@@ -33,7 +33,7 @@ const Add = ({token}) => {
   const [error, setError] = useState("");
   
   const categories = ['Women', 'Men', 'Children'];
-  const types = ['Necklace', 'Bracelets', 'Bangles', 'Rings', 'Anklets'];
+  const types = ['Necklace', 'Earings', 'Bangles', 'Rings', 'Anklets'];
   const sizes = ['S', 'M', 'L', 'XL','None'];
 
   const handleSelectChange = (e) => {
@@ -158,7 +158,7 @@ const Add = ({token}) => {
         });
       }
     } catch (error) {
-      console.error('Error details:', error);
+      //console.error('Error details:', error);
       setError(error.response?.data?.message || "Failed to add product");
     } finally {
       setLoading(false);

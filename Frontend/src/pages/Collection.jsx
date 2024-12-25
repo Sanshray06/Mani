@@ -143,9 +143,9 @@ const Collection = () => {
             {filterProducts.map((item, index) => (
               <ProductItem 
                 key={index} 
-                id={item.id} 
-                image1={item.mainImage[0]} 
-                image2={item.mainImage[1]} 
+                id={item._id} 
+                image1={item.Mainimage[0]} 
+                image2={item.Mainimage[1]} 
                 name={item.name} 
                 price={item.price} 
                 originalPrice={item.originalPrice} 

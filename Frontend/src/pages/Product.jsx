@@ -22,7 +22,7 @@ const Product = () => {
 
   // Fetch product data
   const fetchProductData = () => {
-    const foundProduct = products.find((item) => item.id === parseInt(productId));
+    const foundProduct = products.find((item) => item._id === productId);
     if (foundProduct) {
       setProductData(foundProduct);
       setImage(foundProduct.images[0]);
@@ -65,34 +65,33 @@ const Product = () => {
     <div>
         <div className="border-t-2 pt-10 container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Image Section */}
-          <div className="flex gap-4">
-                      {/* Image Section */}
-              <div className="flex flex-col lg:flex-row gap-4">
-                {/* Thumbnail Section */}
-                <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto max-h-[400px]">
-                  {productData.images.map((item, index) => (
-                    <img
-                      key={index}
-                      src={item}
-                      className={`w-16 h-16 sm:w-20 sm:h-20 object-cover cursor-pointer border rounded-lg
-                        ${image === item ? "border-blue-500" : "border-gray-300"}`}
-                      onClick={() => setImage(item)}
-                      alt={`Thumbnail ${index + 1}`}
-                    />
-                  ))}
-                </div>
+        <div className="container mx-auto px-4">
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Thumbnails */}
+              <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-y-auto lg:max-h-[500px]">
+                {productData.images.map((item, index) => (
+                  <img
+                    key={index}
+                    src={item}
+                    className={`w-20 h-20 object-cover cursor-pointer rounded-lg border-2 
+                      ${image === item ? "border-blue-500" : "border-gray-300"}`}
+                    onClick={() => setImage(item)}
+                    alt={`Thumbnail ${index + 1}`}
+                  />
+                ))}
+              </div>
 
-                {/* Main Image */}
-                <div className="overflow-hidden relative group w--[300px] h-[300px]">
-                  {/* Default Image */}
+              {/* Main Image */}
+              <div className="flex-1">
+                <div className="aspect-square w-full relative">
                   <img
                     src={image}
                     alt="Product"
-                    className="w-full h-full object-cover opacity-100 "
+                    className="w-full h-full object-cover rounded-lg"
                   />
                 </div>
               </div>
-
+            </div>
           </div>
 
           {/* Product Details */}
@@ -104,10 +103,20 @@ const Product = () => {
               ))}
               <p className="pl-2">(122)</p>
             </div>
-            <p className="mt-5 font-medium text-3xl">
-              {productData.currency}
-              {productData.price}
-            </p>
+            <div className="flex items-baseline gap-3 p-2">
+              <span className="text-4xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
+                ₹{productData.price}
+              </span>
+              <span className="text-lg text-gray-400 line-through">
+                ₹{productData.originalPrice}
+              </span>
+            </div>
+            
+            <div className="animate-pulse mt-1">
+              <span className="bg-green-100 text-green-800 text-lg font-semibold px-4 py-1 rounded-full">
+                {Math.round((1 - productData.price/productData.originalPrice) * 100)}% OFF
+              </span>
+            </div>
             <p className="mt-5">{productData.description}</p>
 
             {/* Size Selector */}
@@ -130,7 +139,7 @@ const Product = () => {
 
             {/* Add to Cart & Buy Now */}
             <div className="flex gap-4 mt-8">
-              <button onClick={()=>addToCart(productData.id,selectedSize)} className="px-8 py-3 bg-black text-sm active:bg-gray-700 text-white rounded-lg">Add to Cart</button>
+              <button onClick={()=>addToCart(productData._id,selectedSize)} className="px-8 py-3 bg-black text-sm active:bg-gray-700 text-white rounded-lg">Add to Cart</button>
                 <button
                   onClick={handleBuyNow}
                   className="px-8 py-3 bg-blue-500 text-sm active:bg-blue-700 text-white rounded-lg"
@@ -138,7 +147,6 @@ const Product = () => {
                   Buy Now
               </button>
             </div>
-
             <hr className="mt-8 sm:w-4/5" />
             <div className="text-sm text-gray-500 mt-5 flex flex-col gap-1">
               <p>100% Original Product</p>
