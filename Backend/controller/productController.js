@@ -12,10 +12,11 @@ const addProduct = async (req, res) => {
       type,
       sizes,
       bestSeller,
+      totalPeices
     } = req.body;
 
     // Validate required fields
-    if (!name || !description || !price || !originalPrice || !category || !type) {
+    if (!name || !description || !price || !originalPrice || !category || !type || totalPeices) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
@@ -56,6 +57,7 @@ const addProduct = async (req, res) => {
       sizes: sizes ? JSON.parse(sizes) : [], // Parse sizes if provided
       bestSeller: bestSeller === "true", // Convert bestSeller to boolean
       date: Date.now(),
+      totalPeices
     });
 
     await product.save();

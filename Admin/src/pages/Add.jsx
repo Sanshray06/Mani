@@ -13,6 +13,7 @@ const Add = ({token}) => {
     type: "",
     sizes: [], // Initialize as empty array
     bestSeller: false,
+    totalPeices:'',
   });
   
   const [imageFiles, setImageFiles] = useState({
@@ -411,6 +412,21 @@ const Add = ({token}) => {
                   onChange={(e) => setFormData({ ...formData, bestSeller: e.target.checked })}
                 />
               </div>
+              <div>
+                  <label htmlFor="totalPeices" className="block text-base md:text-lg font-semibold text-gray-700 mb-2">
+                    Total Peices
+                  </label>
+                  <input
+                    type="number"
+                    id="totalPeices"
+                    name="totalPeices"
+                    className="w-full px-4 py-3 text-base md:text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    placeholder="Enter no. of peices"
+                    value={formData.totalPeices}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
             </div>
 
             <button

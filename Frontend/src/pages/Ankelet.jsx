@@ -39,6 +39,7 @@ const Ankelet = () => {
             image2={item.Mainimage[1]}
             price={item.price}
             originalPrice={item.originalPrice}
+            soldOut={item.soldOut}
           />
         ))}
       </div>

@@ -19,6 +19,7 @@ const productSchema = new mongoose.Schema({
     sizes: { type: Array },
     bestSeller: { type: Boolean },
     date: { type: Number, required: true },
+    totalPeices : {type: Number , required : true}
 });
 
 const productModel = mongoose.models.product || mongoose.model("product", productSchema);
