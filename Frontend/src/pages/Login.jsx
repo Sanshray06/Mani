@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import { useContext, useState , useEffect} from 'react';
 import { Mail, ArrowLeft, Check } from 'lucide-react';
+import { ShopContext } from '../context/shopContext';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const [currentState, setCurrentState] = useState('Login');
+  const { token, setToken, navigate, backendUrl } = useContext(ShopContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -10,34 +14,62 @@ const Login = () => {
   const [resetSent, setResetSent] = useState(false);
   const [resetError, setResetError] = useState('');
 
+  useEffect(() => {
+    if(token){
+      navigate('/')
+    }
+  })
+
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-    // Handle login/signup logic here
+
+    try {
+      let response;
+
+      if (currentState === 'Sign Up') {
+        response = await axios.post(`http://localhost:4000/api/user/register`, { name, email, password });
+      } else {
+        response = await axios.post(`http://localhost:4000/api/user/login`, { email, password });
+      }
+
+      if (response.data.success) {
+        const { token } = response.data;
+        setToken(token);
+        localStorage.setItem('token', token);
+        toast.success(`${currentState === 'Sign Up' ? 'Registered' : 'Logged in'} successfully!`);
+        navigate('/'); // Replace '/dashboard' with your desired route after login
+      } else {
+        toast.error(response.data.message || 'An error occurred. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('An error occurred. Please try again later.');
+    }
   };
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     setResetError('');
-    
+
     try {
-      // Here you would typically make an API call to your backend
-      // For demo, we'll simulate a successful password reset email
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await axios.post(`${backendUrl}/api/user/forgot-password`, { email: resetEmail });
       setResetSent(true);
+      toast.success('Password reset instructions sent. Check your email.');
     } catch (error) {
+      console.error('Error:', error);
       setResetError('Failed to send reset email. Please try again.');
     }
   };
 
   const renderForgotPassword = () => (
     <div className="w-full">
-      <button 
+      <button
         onClick={() => setCurrentState('Login')}
         className="mb-6 inline-flex items-center text-gray-600 hover:text-gray-800"
       >
         <ArrowLeft className="w-4 h-4 mr-2" /> Back to Login
       </button>
-      
+
       {resetSent ? (
         <div className="text-center">
           <div className="mb-4 mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -66,7 +98,7 @@ const Login = () => {
               Enter your email address and we'll send you instructions to reset your password.
             </p>
           </div>
-          
+
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -78,11 +110,9 @@ const Login = () => {
               required
             />
           </div>
-          
-          {resetError && (
-            <p className="text-red-500 text-sm">{resetError}</p>
-          )}
-          
+
+          {resetError && <p className="text-red-500 text-sm">{resetError}</p>}
+
           <button
             type="submit"
             className="w-full bg-black text-white font-light py-2 hover:bg-gray-800 transition-colors"
@@ -100,7 +130,7 @@ const Login = () => {
         <p className="prata-regular text-3xl">{currentState}</p>
         <hr className="border-none h-[1.5px] w-8 bg-gray-800" />
       </div>
-      
+
       {currentState === 'Sign Up' && (
         <input
           type="text"
@@ -108,28 +138,34 @@ const Login = () => {
           onChange={(e) => setName(e.target.value)}
           className="w-full px-3 py-2 border border-gray-800"
           placeholder="Name"
+          name = "name"
+          autoComplete="name"
           required
         />
       )}
-      
+
       <input
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         className="w-full px-3 py-2 border border-gray-800"
         placeholder="Email"
+        name="email"
+        autoComplete="email"
         required
       />
-      
+
       <input
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         className="w-full px-3 py-2 border border-gray-800"
         placeholder="Password"
+        name="password"
+        autoComplete="password"
         required
       />
-      
+
       <div className="w-full flex justify-between text-sm">
         <p
           className="cursor-pointer hover:text-gray-600"
@@ -153,7 +189,7 @@ const Login = () => {
           </p>
         )}
       </div>
-      
+
       <button className="w-full bg-black text-white font-light py-2 hover:bg-gray-800 transition-colors">
         {currentState === 'Login' ? 'Sign In' : 'Sign Up'}
       </button>

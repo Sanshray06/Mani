@@ -13,6 +13,7 @@ const ShopContextProvider = (props) => {
   const navigate=  useNavigate();
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(true);
+  const [token,setToken] = useState('');
   const [cartItems, setCartItems] = useState(() => {
     // Initialize cart from localStorage if available
     const savedCart = localStorage.getItem('cart');
@@ -141,6 +142,12 @@ const ShopContextProvider = (props) => {
   useEffect(()=>{
     getProductsData()
   },[])
+
+  useEffect(()=>{
+    if(!token && localStorage.getItem('token')){
+      setToken(localStorage.getItem('token'))
+    }
+  },[])
   const value = {
     products,
     currency,
@@ -158,7 +165,10 @@ const ShopContextProvider = (props) => {
     clearCart,
     navigate,
     buy,
-    backednUrl
+    backednUrl,
+    token,
+    setToken,
+    setCartItems
   };
 
   return (
