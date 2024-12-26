@@ -1,12 +1,18 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { asset } from '../assets/assets';
 import { ShopContext } from '../context/shopContext';
 
 const Navbar = () => {
   const [visible ,setVisible] = useState(false);
-  const {setShowSearch , getCartCount} = useContext(ShopContext);
-  const [cartBounce, setCartBounce] = useState(false);
+  const {setShowSearch , getCartCount,navigate , token ,setToken, setCartItems} = useContext(ShopContext);
+
+  const logout =() =>{
+    localStorage.removeItem('token')
+    setToken('')
+    setCartItems({})
+    navigate('/login')
+  }
 
   return (
     <nav className="w-full bg-white shadow-md">
@@ -92,15 +98,15 @@ const Navbar = () => {
           
           <div className="relative group">
             <Link to='/Login'>
-              <img className="w-5 cursor-pointer" src={asset.user} alt="Profile Pic" />
+              <img onClick={()=> token ? null :navigate('/login')} className="w-5 cursor-pointer" src={asset.user} alt="Profile Pic" />
             </Link>
-            <div className="absolute right-0 hidden group-hover:block pt-4">
+            {token && <div className="absolute right-0 hidden group-hover:block pt-4">
               <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded shadow-md">
                 <p className="cursor-pointer hover:text-black">My Profile</p>
-                <p className="cursor-pointer hover:text-black">Orders</p>
-                <p className="cursor-pointer hover:text-black">Logout</p>
+                <p onClick={()=>navigate('/order')} className="cursor-pointer hover:text-black">Orders</p>
+                <p onClick={logout} className="cursor-pointer hover:text-black">Logout</p>
               </div>
-            </div>
+            </div>}
           </div>
 
           <Link to="/cart" className="relative">
