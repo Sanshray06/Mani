@@ -16,7 +16,7 @@ const addProduct = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!name || !description || !price || !originalPrice || !category || !type || totalPeices) {
+    if (!name || !description || !price || !originalPrice || !category || !type || !totalPeices ) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
@@ -57,7 +57,7 @@ const addProduct = async (req, res) => {
       sizes: sizes ? JSON.parse(sizes) : [], // Parse sizes if provided
       bestSeller: bestSeller === "true", // Convert bestSeller to boolean
       date: Date.now(),
-      totalPeices
+      totalPeices: Number(totalPeices)
     });
 
     await product.save();
@@ -123,4 +123,63 @@ const listProducts = async (req, res) => {
       res.status(500).json({ message: "Internal server error." });
     }
   };
-export {addProduct,singleProduct,listProducts,removeProducts}
+
+  const reducePeice = async (req, res) => {
+    try {
+      const { id } = req.body;
+  
+      // Check if the product exists
+      const product = await productModel.findById(id);
+  
+      if (!product) {
+        return res.status(404).json({ message: "Product not found." });
+      }
+  
+      // Check if totalPeices is greater than 0 before reducing
+      if (product.totalPeices > 0) {
+        // Reduce totalPeices by 1
+        product.totalPeices -= 1;
+  
+        // Save the updated product
+        await product.save();
+  
+        res.status(200).json({ message: "Product total pieces reduced by 1." });
+      } else {
+        res.status(400).json({ message: "No pieces left to reduce." });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error." });
+    }
+  };
+
+  const increasePeice = async (req, res) => {
+    try {
+      const { id } = req.body;
+  
+      // Check if the product exists
+      const product = await productModel.findById(id);
+  
+      if (!product) {
+        return res.status(404).json({ message: "Product not found." });
+      }
+  
+      // Check if totalPeices is greater than 0 before reducing
+      if (product.totalPeices >= 0) {
+        // Reduce totalPeices by 1
+        product.totalPeices += 1;
+  
+        // Save the updated product
+        await product.save();
+  
+        res.status(200).json({ message: "Product total pieces increase by 1." });
+      } else {
+        res.status(400).json({ message: "No pieces left to reduce." });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error." });
+    }
+  };
+  
+export {addProduct,singleProduct,listProducts,removeProducts , reducePeice , increasePeice}
