@@ -6,31 +6,34 @@ const Cart = () => {
   const { products, currency, cartItems, updateQuantity, removeFromCart, navigate } = useContext(ShopContext);
   const [cartData, setCartData] = useState([]);
   const [inputValues, setInputValues] = useState({});
+  useEffect(() => {
+    if (Object.keys(cartItems).length === 0) {
+      setCartData([]);
+    }
+  }, [cartItems]);
+  
 
   useEffect(() => {
-    const tempData = [];
-    const tempInputValues = {};
-    for (const itemId in cartItems) {
-      for (const size in cartItems[itemId]) {
-        const quantity = cartItems[itemId][size];
-        if (quantity > 0) {
-          const product = products.find((p) => p._id.toString() === itemId);
-          if (product) {
-            tempData.push({
-              id: itemId,
-              size: size,
-              quantity,
-              product,
-            });
-            tempInputValues[`${itemId}-${size}`] = quantity;
+    if (products.length > 0 && Object.keys(cartItems).length > 0) {
+      const tempData = [];
+      const tempInputValues = {};
+      for (const itemId in cartItems) {
+        const product = products.find((p) => p._id.toString() === itemId);
+        if (product) {
+          for (const size in cartItems[itemId]) {
+            const quantity = cartItems[itemId][size];
+            if (quantity > 0) {
+              tempData.push({ id: itemId, size, quantity, product });
+              tempInputValues[`${itemId}-${size}`] = quantity;
+            }
           }
         }
       }
+      setCartData(tempData);
+      setInputValues(tempInputValues);
     }
-    setCartData(tempData);
-    setInputValues(tempInputValues);
   }, [cartItems, products]);
-
+  
   const handleInputChange = (itemId, size, value) => {
     const numericValue = value ? parseInt(value) : 0;
     setInputValues((prev) => ({
@@ -40,8 +43,8 @@ const Cart = () => {
   };
 
   const handleBlur = (itemId, size) => {
-    const quantity = parseInt(inputValues[`${itemId}-${size}`]) || 0;
-    if (quantity > 0) {
+    const quantity = parseInt(inputValues[`${itemId}-${size}`], 10);
+    if (!Number.isNaN(quantity) && quantity > 0) {
       updateQuantity(itemId, size, quantity);
     } else {
       removeFromCart(itemId, size);
