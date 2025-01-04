@@ -111,6 +111,7 @@ const Product = () => {
               quantity: 1,
             },
           ],
+          isBuyNow: true,
           total: productData.price,
         },
       });
