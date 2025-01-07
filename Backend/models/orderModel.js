@@ -10,7 +10,8 @@ const orderSchema = new mongoose.Schema({
     price: { type: Number, required: true },
     size: { type: String, required: true },
     quantity: { type: Number, required: true },
-    id1: { type: String , required: true }, 
+    id1: { type: String }, 
+    Mainimage: Array
   }],
   totalAmount: { 
     type: Number, 
@@ -49,7 +50,8 @@ const orderSchema = new mongoose.Schema({
   createdAt: { 
     type: Date, 
     default: Date.now 
-  }
+  },
+  
 });
 
 const OrderModel = mongoose.models.order || mongoose.model('order', orderSchema);

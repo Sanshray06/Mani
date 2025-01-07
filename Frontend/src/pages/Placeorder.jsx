@@ -202,7 +202,9 @@ const PlaceOrder = () => {
                 price: Number(item.product.price),
                 size: String(item.size),
                 quantity: Number(item.quantity),
-                id1:String(item.product._id)
+                id1:String(item.product._id),
+                Mainimage: item.product.Mainimage,  // Main product images
+                images: item.product.images 
             })),
             totalAmount,
             shippingAddress: formData,
