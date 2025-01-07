@@ -3,6 +3,9 @@ import { useLocation } from 'react-router-dom';
 import Title from '../components/Title';
 import { asset } from '../assets/assets';
 import { ShopContext } from '../context/shopContext';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+
 
 const PlaceOrder = () => {
   const location = useLocation();
@@ -13,8 +16,13 @@ const PlaceOrder = () => {
     token, 
     getCartAmount, 
     delivery_fee, 
-    products 
+    products ,
+    setCartItems
   } = useContext(ShopContext);
+  useEffect(() => {
+    console.log("Token in localStorage:", localStorage.getItem('token'));
+    console.log("UserId in localStorage:", localStorage.getItem('userId'));
+}, []);
 
   // First, try to get data from location state (Buy Now flow)
   const locationState = location.state || {};
@@ -46,7 +54,49 @@ const PlaceOrder = () => {
     }
     return cartDataFromContext;
   };
-
+  const validateOrderData = (formData) => {
+    const errors = {};
+    
+    // Required shipping address fields
+    const requiredFields = [
+      'firstName',
+      'lastName',
+      'email',
+      'phone',
+      'street',
+      'city',
+      'state',
+      'zipcode',
+      'country'
+    ];
+    
+    // Check for empty required fields
+    requiredFields.forEach(field => {
+      if (!formData[field] || formData[field].trim() === '') {
+        errors[field] = `${field} is required`;
+      }
+    });
+    
+    // Email validation
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    // Phone validation (basic)
+    if (formData.phone && !/^\+?[\d\s-]{10,}$/.test(formData.phone)) {
+      errors.phone = 'Please enter a valid phone number';
+    }
+    
+    // Zipcode validation (basic)
+    if (formData.zipcode && !/^[\d\s-]{5,}$/.test(formData.zipcode)) {
+      errors.zipcode = 'Please enter a valid zipcode';
+    }
+    
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors
+    };
+  };
   const [cartData, setCartData] = useState([]);
   const [total, setTotal] = useState(0);
   const [selectedPayment, setSelectedPayment] = useState('cod');
@@ -102,65 +152,129 @@ const PlaceOrder = () => {
     setFormData(data => ({ ...data, [name]: value }));
   };
 
+  
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-    console.log('=== Order Submission Started ===');
-    console.log('Form Data:', formData);
-    console.log('Cart Data:', cartData);
-    console.log('Total Amount:', total + delivery_fee);
 
     try {
-      const orderData = {
-        items: cartData.map(item => ({
-          ...item.product,
-          size: item.size,
-          quantity: item.quantity
-        })),
-        shippingAddress: formData,
-        paymentMethod: selectedPayment,
-        totalAmount: total + delivery_fee,
-        isBuyNow: isFromBuyNow
-      };
+        const token = localStorage.getItem('token');
 
-      console.log('Prepared Order Data:', orderData);
+        // Extract userId from token
+        let userId;
+        try {
+            const tokenParts = token.split('.');  // Split the JWT into parts
+            const payloadBase64 = tokenParts[1];  // Get the payload part
+            const decodedPayload = atob(payloadBase64);  // Decode base64
+            const payload = JSON.parse(decodedPayload);  // Parse JSON
+            userId = payload.id;  // Get userId
+            console.log('Extracted userId from token:', userId);
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            toast.error('Authentication error');
+            navigate('/login');
+            return;
+        }
 
-      const response = await fetch(`${backendUrl}/api/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(orderData)
-      });
+        if (!token || !userId) {
+            toast.error('Please login to place an order');
+            navigate('/login');
+            return;
+        }
 
-      if (!response.ok) {
-        throw new Error('Failed to create order');
-      }
+        const totalAmount = Number(
+            cartData.reduce((sum, item) =>
+                sum + (Number(item.product.price) * Number(item.quantity)),
+                0
+            ) + (Number(delivery_fee) || 0)
+        );
 
-      const responseData = await response.json();
+        // Validate shipping address
+        const hasEmptyFields = Object.values(formData).some(value => !value);
+        if (hasEmptyFields) {
+            toast.error('Please fill in all shipping address fields');
+            return;
+        }
 
-      // Handle payment method specific logic
-      switch (selectedPayment) {
-        case 'stripe':
-          // Add your Stripe logic here
-          break;
-        case 'razorpay':
-          // Add your Razorpay logic here
-          break;
+        const orderData = {
+            userId,
+            items: cartData.map(item => ({
+                name: String(item.product.name),
+                price: Number(item.product.price),
+                size: String(item.size),
+                quantity: Number(item.quantity),
+                id1:String(item.product._id)
+            })),
+            totalAmount,
+            shippingAddress: formData,
+            paymentMethod: String(selectedPayment).toLowerCase(),
+            paymentStatus: false,
+            isBuyNow: Boolean(isFromBuyNow)
+        };
+
+        // Debug logs
+        console.log('Auth Token:', token);
+        console.log('User ID:', userId);
+        console.log('Sending order data:', orderData);
+
+       switch(selectedPayment){
         case 'cod':
-          navigate('/order-success', { 
-            state: { 
-              orderId: responseData.orderId,
-              orderAmount: total + delivery_fee 
+          const response = await axios.post(
+            'http://localhost:4000/api/order/place',
+            orderData,
+            { 
+              headers: {
+                'token': `${token}`  // Change to 'token'
+            },
+                validateStatus: function (status) {
+                    return status >= 200 && status < 600;
+                }
             }
-          });
-          break;
-      }
-    } catch (error) {
-      console.error('Order creation failed:', error);
-    }
-  };
+          );
 
+          console.log('Server response:', response.data);
+
+          if (response.data.success) {
+              if(!isFromBuyNow){
+                setCartItems({});
+              }
+              toast.success('Order placed successfully!');
+              navigate('/order');
+          } else {
+              toast.error(response.data.message || 'Order placement failed');
+          }
+          break;
+        default:
+          break;
+
+       }
+    } catch (error) {
+        console.error('Full error details:', {
+            message: error.message,
+            response: error.response?.data,
+            stack: error.stack
+        });
+
+        // Handle authentication errors specifically
+        if (error.response?.status === 401) {
+            toast.error('Session expired. Please login again');
+            navigate('/login');
+            return;
+        }
+
+        toast.error(error.response?.data?.message || error.message || 'Failed to create order');
+    }
+};
+
+  // Payment handler functions (to be implemented based on your payment gateway integration)
+  const handleStripePayment = async (orderData) => {
+    // Implement Stripe payment logic
+    throw new Error('Stripe payment not implemented');
+  };
+  
+  const handleRazorpayPayment = async (orderData) => {
+    // Implement Razorpay payment logic
+    throw new Error('Razorpay payment not implemented');
+  };
   return (
     <form
     className="flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t px-4"
@@ -323,12 +437,12 @@ const PlaceOrder = () => {
           <hr />
           <div className="flex justify-between">
             <p>Shipping Fee</p>
-            <p>₹40</p>
+            <p>₹{delivery_fee}</p>
           </div>
           <hr />
           <div className="flex justify-between font-bold text-lg">
             <p>Total</p>
-            <p>₹{total + 40}</p>
+            <p>₹{total + delivery_fee}</p>
           </div>
         </div>
 
@@ -342,7 +456,7 @@ const PlaceOrder = () => {
               className={`border rounded-lg flex items-center justify-center ${
                 selectedPayment === 'stripe' ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 ring-opacity-50' : 'border-gray-200'
               }`}
-              onClick={() => handlePaymentSelection('stripe')}
+              onClick={() => handlePaymentSelection('stripe',e)}
               
             >
               <img
@@ -356,7 +470,7 @@ const PlaceOrder = () => {
                 ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 ring-opacity-50' 
                 : 'border-gray-200 hover:border-gray-300'
               }`}
-              onClick={() => handlePaymentSelection('razorpay')}
+              onClick={() => handlePaymentSelection('razorpay',e)}
             >
               <img
                 src={asset.th123}
@@ -368,7 +482,7 @@ const PlaceOrder = () => {
               className={`border rounded-lg flex items-center justify-center ${
                 selectedPayment === 'cod' ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 ring-opacity-50' : 'border-gray-200'
               }`}
-              onClick={() => handlePaymentSelection('cod')}
+              onClick={() => handlePaymentSelection('cod',e)}
             >
               <img
                 src={asset.download}

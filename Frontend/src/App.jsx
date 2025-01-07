@@ -36,7 +36,7 @@ function App() {
           <Route path='/Collection'   element = {<Collection/>} />
           <Route path='/Contact'   element = {<Contact/>} />
           <Route path='/Login'   element = {<Login/>} />
-          <Route path='/orders'   element = {<Order/>} />
+          <Route path='/order'   element = {<Order/>} />
           <Route path='/Placeorder'   element = {<Placeorder/>} />
           <Route path='/Product/:productId'   element = {<Product/>} />
           <Route path='/necklaces'   element = {<Necklace/>} />

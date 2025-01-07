@@ -42,7 +42,7 @@ const getComments = async (req, res) => {
     try {
         const { productId } = req.params;
 
-        const comments = await commentModel.find({ productId }).populate("userId", "name email"); // Optionally populate user data
+        const comments = await commentModel.find({ productId }).populate("userId", "name email", null, { strictPopulate: false }); // Optionally populate user data
         
         return res.status(200).json(comments);
     } catch (error) {
